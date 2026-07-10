@@ -15,6 +15,12 @@ WORKDIR /app
 
 # ── Dependencias ──
 FROM base AS deps
+# Instalar herramientas de compilación para poder construir módulos nativos (better-sqlite3)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copiar solo manifests para cachear la instalación.
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/shared/package.json packages/shared/
