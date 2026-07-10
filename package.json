@@ -1,0 +1,28 @@
+{
+  "name": "bv-wiki-of-wine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"pnpm --filter @bv/api dev\" \"pnpm --filter @bv/web dev\"",
+    "dev:server": "pnpm --filter @bv/api dev",
+    "dev:client": "pnpm --filter @bv/web dev",
+    "build": "pnpm --filter @bv/shared build && pnpm --filter @bv/web build",
+    "start": "pnpm --filter @bv/api start",
+    "test": "pnpm -r --workspace-concurrency=1 test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "db:seed": "pnpm --filter @bv/api db:seed",
+    "db:reset": "pnpm --filter @bv/api db:reset"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3"
+  }
+}

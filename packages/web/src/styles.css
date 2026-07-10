@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* ── Tokens semánticos (claro) ─────────────────────────────────────────────
+   Copiados de bv-personal-finances / bv-my-investments. Los `--primary*` los
+   sobrescribe el acento (script anti-FOUC en index.html + ThemeProvider). */
+:root {
+  /* Alinea los controles nativos (select, scrollbar, date picker) al tema. */
+  color-scheme: light;
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --surface-2: #f0eee6;
+  --border: #e4e1d7;
+  --fg: #1a1915;
+  --muted: #6b6862;
+  --dim: #9c998f;
+  --primary: #c96442;
+  --primary-strong: #b4543a;
+  --primary-soft: rgba(201, 100, 66, 0.14);
+  --on-primary: #ffffff;
+  --danger: #c0584e;
+  --ok: #4f8a5b;
+  --dot: rgba(60, 52, 36, 0.05);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1f1e1d;
+  --surface: #292827;
+  --surface-2: #35332f;
+  --border: #3d3a35;
+  --fg: #f4f2ec;
+  --muted: #aca899;
+  --dim: #6e6b62;
+  --danger: #e0796d;
+  --ok: #7fb389;
+  --dot: rgba(0, 0, 0, 0.22);
+}
+
+/* ── Color por tipo de vino ────────────────────────────────────────────────
+   Iguales en ambos temas: son el color del líquido, no de la interfaz.
+   Nunca son el único portador de información (WCAG 1.4.1): el chip de tipo
+   siempre lleva su texto y el glifo de botella su aria-label. */
+:root {
+  --wine-tinto: #7b2d3b;
+  --wine-blanco: #d9c87a;
+  --wine-rosado: #e4a0a6;
+  --wine-espumante: #e8d9a0;
+  --wine-naranjo: #d98e3f;
+  --wine-dulce: #a85c2e;
+}
+
+/* ── Mapeo de tokens a utilidades Tailwind (bg-surface, text-muted, …) ────── */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-dim: var(--dim);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--fg);
+  /* Fuente del sistema: cero descarga → primer paint instantáneo, y no hace
+     falta abrir la CSP a fonts.googleapis.com. */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  /* Sin delay de 300ms ni doble-tap-zoom en toques; el pan/scroll sigue igual. */
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Dígitos alineados en puntajes y promedios. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
