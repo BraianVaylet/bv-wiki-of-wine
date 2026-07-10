@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="BV Wiki of Wine">
+  <title>BV Wiki of Wine</title>
+  <rect width="512" height="512" rx="112" fill="#1f1e1d"/>
+
+  <!-- Copa: el relleno translúcido es el vino; el trazo, el cristal. -->
+  <path d="M150 132 L310 132 L310 186 C310 250 276 296 230 306 C184 296 150 250 150 186 Z"
+        fill="#C96442" fill-opacity="0.28"
+        stroke="#C96442" stroke-width="34" stroke-linejoin="round"/>
+  <path d="M230 306 L230 396" fill="none" stroke="#C96442" stroke-width="34" stroke-linecap="round"/>
+  <path d="M166 404 L294 404" fill="none" stroke="#C96442" stroke-width="34" stroke-linecap="round"/>
+
+  <!-- Estrella: la app es puntuar. Verde `--ok`, mismo recurso que el punto de BV Invest. -->
+  <path d="M404 78 L413.9 106.4 L443.9 107 L420 125.2 L428.7 154 L404 136.8 L379.3 154 L388 125.2 L364.1 107 L394.1 106.4 Z"
+        fill="#7fb389"/>
+</svg>
