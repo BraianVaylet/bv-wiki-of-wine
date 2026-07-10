@@ -42,7 +42,10 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml ./
 
-RUN chown -R node:node /app
+# Crear /data con los permisos correctos para el usuario node.
+# Railway monta el volumen en /data, pero si el directorio no existe en la imagen
+# y el proceso corre como no-root, el mkdirSync de la app fallará con EACCES.
+RUN mkdir -p /data && chown -R node:node /app /data
 USER node
 WORKDIR /app/packages/api
 EXPOSE 8787
