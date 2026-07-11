@@ -15,7 +15,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icon.svg'],
       manifest: {
         name: 'Wiki of Wine',
-        short_name: 'Wiki of Wine',
+        short_name: 'BV Wiki of Wine',
         description: 'Los vinos que probamos, y si nos gustaron.',
         theme_color: '#1f1e1d',
         background_color: '#1f1e1d',
