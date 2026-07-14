@@ -1,11 +1,6 @@
-import { cn } from '../../lib/cn';
+import { Skeleton } from '@medano-ui/react';
 
-/** Bloque de carga. Con la forma del contenido real evita el salto de layout. */
-export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn('animate-pulse rounded-md bg-surface-2', className)} aria-hidden="true" />
-  );
-}
+export { Skeleton };
 
 /** Skeleton con la forma de una WineCard (imagen + 3 líneas). */
 export function WineCardSkeleton() {

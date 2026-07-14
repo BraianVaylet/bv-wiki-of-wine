@@ -1,3 +1,4 @@
+import { EmptyState as MedanoEmptyState } from '@medano-ui/react';
 import type { ReactNode } from 'react';
 
 interface EmptyStateProps {
@@ -7,14 +8,9 @@ interface EmptyStateProps {
   action?: ReactNode;
 }
 
-/** Estado vacío para listas sin datos. Nunca dejar una lista en blanco. */
+/** Adapter sobre medano-ui: la firma legacy llama `illustration` al icon. */
 export function EmptyState({ title, description, illustration, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-border border-dashed bg-surface px-6 py-10 text-center">
-      {illustration}
-      <p className="font-medium text-fg">{title}</p>
-      {description && <p className="text-muted text-sm">{description}</p>}
-      {action && <div className="mt-2">{action}</div>}
-    </div>
+    <MedanoEmptyState title={title} description={description} icon={illustration} action={action} />
   );
 }

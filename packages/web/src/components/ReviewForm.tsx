@@ -8,7 +8,7 @@ import {
 } from '@bv/shared';
 import { useState } from 'react';
 import { StarRating } from './StarRating';
-import { Alert, Button } from './ui';
+import { Alert, Button, Textarea } from './ui';
 
 const NOTES_MAX = LIMITS.reviewNotes.max;
 const NOTES_COUNTER_FROM = 400;
@@ -85,12 +85,12 @@ export function ReviewForm({ initial, loading, error, onSubmit, onCancel }: Revi
             </div>
           ))}
           <div>
-            <textarea
+            <Textarea
+              label="Nota"
               value={notes}
               onChange={(e) => setNotes(e.target.value.slice(0, NOTES_MAX))}
               rows={3}
               placeholder="Una nota para acordarte…"
-              className="w-full rounded-lg border border-border bg-surface p-2 text-fg text-sm placeholder:text-dim"
             />
             {notes.length >= NOTES_COUNTER_FROM && (
               <p className="text-right text-dim text-xs">
