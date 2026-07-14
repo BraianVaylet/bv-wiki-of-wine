@@ -1,7 +1,6 @@
 import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   ACCENT_KEY,
-  DEFAULT_ACCENT,
   THEME_KEY,
   type ThemeMode,
   applyTheme,
@@ -11,7 +10,8 @@ import {
 
 interface ThemeContextValue {
   mode: ThemeMode;
-  accent: string;
+  /** Hex elegido, o null = acento nativo de medano-ui (brasa). */
+  accent: string | null;
   toggleMode: () => void;
   setAccent: (hex: string) => void;
 }
@@ -20,7 +20,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>(getInitialTheme);
-  const [accent, setAccentState] = useState<string>(getInitialAccent);
+  const [accent, setAccentState] = useState<string | null>(getInitialAccent);
 
   // Aplica tema + acento al <html> en cada cambio (el anti-FOUC ya aplicó el inicial).
   useEffect(() => {
@@ -50,7 +50,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 /** Fallback inerte cuando no hay provider (tests que montan una página suelta). */
 const FALLBACK_THEME: ThemeContextValue = {
   mode: 'light',
-  accent: DEFAULT_ACCENT,
+  accent: null,
   toggleMode: () => {},
   setAccent: () => {},
 };

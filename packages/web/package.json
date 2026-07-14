@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@bv/shared": "workspace:*",
+    "@medano-ui/fonts": "^0.1.0",
+    "@medano-ui/react": "^0.1.0",
+    "@medano-ui/tokens": "^0.1.0",
     "@tanstack/react-query": "^5.62.7",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",

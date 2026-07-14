@@ -1,39 +1,34 @@
+@import "@medano-ui/fonts/medano-sans.css";
+@import "@medano-ui/tokens/vars.css";
+@import "@medano-ui/react/styles.css";
 @import "tailwindcss";
 
-/* ── Tokens semánticos (claro) ─────────────────────────────────────────────
-   Copiados de bv-personal-finances / bv-my-investments. Los `--primary*` los
-   sobrescribe el acento (script anti-FOUC en index.html + ThemeProvider). */
+/* ── Bridge a tokens medano-ui ─────────────────────────────────────────────
+   Las vars semánticas legacy apuntan a los tokens de @medano-ui/tokens, así
+   todas las clases Tailwind existentes (bg-surface, text-muted, …) se
+   re-skinean sin tocar componentes. Los tokens medano flipan solos con
+   data-theme (dark por defecto, [data-theme="light"] explícito); el acento
+   elegido sobrescribe --medano-accent-* (anti-FOUC en index.html +
+   src/theme/accent.ts). */
 :root {
-  /* Alinea los controles nativos (select, scrollbar, date picker) al tema. */
-  color-scheme: light;
-  --bg: #faf9f5;
-  --surface: #ffffff;
-  --surface-2: #f0eee6;
-  --border: #e4e1d7;
-  --fg: #1a1915;
-  --muted: #6b6862;
-  --dim: #9c998f;
-  --primary: #c96442;
-  --primary-strong: #b4543a;
-  --primary-soft: rgba(201, 100, 66, 0.14);
-  --on-primary: #ffffff;
-  --danger: #c0584e;
-  --ok: #4f8a5b;
-  --dot: rgba(60, 52, 36, 0.05);
+  --bg: var(--medano-surface-0);
+  --surface: var(--medano-surface-1);
+  --surface-2: var(--medano-surface-2);
+  --border: var(--medano-border-subtle);
+  --fg: var(--medano-ink-primary);
+  --muted: var(--medano-ink-secondary);
+  --dim: var(--medano-ink-muted);
+  --primary: var(--medano-accent-base);
+  --primary-strong: var(--medano-accent-strong);
+  --primary-soft: var(--medano-accent-subtle);
+  --on-primary: var(--medano-ink-on-accent);
+  --danger: var(--medano-feedback-danger);
+  --ok: var(--medano-feedback-positive);
+  --dot: rgba(0, 0, 0, 0.22);
 }
 
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #1f1e1d;
-  --surface: #292827;
-  --surface-2: #35332f;
-  --border: #3d3a35;
-  --fg: #f4f2ec;
-  --muted: #aca899;
-  --dim: #6e6b62;
-  --danger: #e0796d;
-  --ok: #7fb389;
-  --dot: rgba(0, 0, 0, 0.22);
+[data-theme="light"] {
+  --dot: rgba(60, 52, 36, 0.05);
 }
 
 /* ── Color por tipo de vino ────────────────────────────────────────────────
@@ -75,9 +70,9 @@ body,
 body {
   margin: 0;
   color: var(--fg);
-  /* Fuente del sistema: cero descarga → primer paint instantáneo, y no hace
-     falta abrir la CSP a fonts.googleapis.com. */
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* medano Sans: self-hosted (@medano-ui/fonts), no requiere abrir la CSP a
+     orígenes externos; system-ui de fallback hasta que cargue (font-display: swap). */
+  font-family: "medano Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   background-color: var(--bg);
