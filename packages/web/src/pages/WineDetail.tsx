@@ -63,7 +63,8 @@ export function WineDetail() {
         {canEditWine && (
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" to={`/wines/${wineId}/edit`}>
-              <Pencil size={14} aria-hidden="true" /> Editar
+              <Pencil size={14} aria-hidden="true" />
+              <span className="sr-only">Editar vino</span>
             </Button>
             <Button variant="secondary" size="sm" onClick={() => setConfirmDelete(true)}>
               <Trash2 size={14} aria-hidden="true" />
@@ -93,7 +94,7 @@ export function WineDetail() {
       </div>
 
       {aggregates.reviewCount > 0 && (
-        <div className="mt-4 rounded-xl border border-border bg-surface p-4">
+        <div className="mt-4 medano-card bg-surface p-4">
           <AxisBar label={REVIEW_AXIS_LABELS.taste} avg={aggregates.avgTaste} />
           <AxisBar label={REVIEW_AXIS_LABELS.aroma} avg={aggregates.avgAroma} />
           <AxisBar label={REVIEW_AXIS_LABELS.body} avg={aggregates.avgBody} />
@@ -113,20 +114,28 @@ export function WineDetail() {
             onCancel={() => setEditing(false)}
           />
         ) : myReview ? (
-          <div className="rounded-xl border border-border bg-surface p-4">
+          <div className="medano-card bg-surface p-4">
             <div className="flex items-center justify-between">
               <StarRatingDisplay value={myReview.overall} size={18} />
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
-                  Editar
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Editar reseña"
+                  onClick={() => setEditing(true)}
+                >
+                  <Pencil size={16} aria-hidden="true" />
+                  <span className="sr-only">Editar reseña</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
+                  title="Borrar reseña"
                   loading={deleteReview.isPending}
                   onClick={() => deleteReview.mutate()}
                 >
-                  Borrar
+                  <Trash2 size={16} aria-hidden="true" />
+                  <span className="sr-only">Borrar reseña</span>
                 </Button>
               </div>
             </div>

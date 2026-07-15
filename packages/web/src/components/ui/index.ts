@@ -9,3 +9,5 @@ export { PageLoader } from './PageLoader';
 export { Select } from './Select';
 export { Skeleton, WineCardSkeleton } from './Skeleton';
 export { Spinner } from './Spinner';
+// Directo de medano-ui: no necesita adapter.
+export { Textarea } from '@medano-ui/react';

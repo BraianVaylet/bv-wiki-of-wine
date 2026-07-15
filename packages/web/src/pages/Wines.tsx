@@ -6,7 +6,7 @@ import { AppShell } from '../components/AppShell';
 import { BottleGlyph } from '../components/BottleGlyph';
 import { WineCard } from '../components/WineCard';
 import { WineTypeSelect } from '../components/WineTypeSelect';
-import { Alert, Button, EmptyState, Input, WineCardSkeleton } from '../components/ui';
+import { Alert, Button, EmptyState, WineCardSkeleton } from '../components/ui';
 import { type WineFilters, useWines } from '../hooks/useWines';
 
 const SKELETON_KEYS = ['s1', 's2', 's3', 's4'];
@@ -30,7 +30,10 @@ export function Wines() {
             className="-translate-y-1/2 absolute top-1/2 left-3 text-dim"
             aria-hidden="true"
           />
-          <Input
+          {/* Input crudo con la clase de medano: el Input de la librería exige
+              label visible y acá el nombre accesible lo da aria-label (gap
+              anotado en medano-ui/docs/GAPS.md). */}
+          <input
             type="search"
             name="q"
             value={query}
@@ -39,7 +42,8 @@ export function Wines() {
             aria-label="Buscar vino o bodega"
             autoComplete="off"
             enterKeyHint="search"
-            className="pl-10"
+            className="medano-field__input w-full"
+            style={{ paddingLeft: '2.5rem' }}
           />
         </div>
 

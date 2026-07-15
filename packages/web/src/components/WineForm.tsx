@@ -98,16 +98,12 @@ export function WineForm({ initial, submitLabel, loading, submitError, onSubmit 
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       {isConflict && <Alert variant="danger">Ese vino ya está cargado.</Alert>}
 
-      <div>
-        <Label htmlFor="name">Nombre *</Label>
-        <Input
-          id="name"
-          value={values.name}
-          onChange={(e) => set('name', e.target.value)}
-          invalid={Boolean(errors.name)}
-        />
-        <FieldError>{errors.name}</FieldError>
-      </div>
+      <Input
+        label="Nombre *"
+        value={values.name}
+        onChange={(e) => set('name', e.target.value)}
+        error={errors.name}
+      />
 
       <div>
         <Label>Tipo *</Label>
@@ -116,9 +112,8 @@ export function WineForm({ initial, submitLabel, loading, submitError, onSubmit 
       </div>
 
       <div>
-        <Label htmlFor="wineryName">Bodega</Label>
         <Input
-          id="wineryName"
+          label="Bodega"
           list="winery-suggestions"
           value={values.wineryName}
           onChange={(e) => set('wineryName', e.target.value)}
@@ -132,33 +127,26 @@ export function WineForm({ initial, submitLabel, loading, submitError, onSubmit 
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label htmlFor="vintage">Cosecha</Label>
-          <Input
-            id="vintage"
-            inputMode="numeric"
-            value={values.vintage}
-            onChange={(e) => set('vintage', e.target.value.replace(/\D/g, ''))}
-            placeholder={String(CURRENT_YEAR)}
-            invalid={Boolean(errors.vintage)}
-          />
-          <FieldError>{errors.vintage}</FieldError>
-        </div>
-        <div>
-          <Label htmlFor="region">Región</Label>
-          <Input
-            id="region"
-            value={values.region}
-            onChange={(e) => set('region', e.target.value)}
-          />
-        </div>
+        <Input
+          label="Cosecha"
+          inputMode="numeric"
+          value={values.vintage}
+          onChange={(e) => set('vintage', e.target.value.replace(/\D/g, ''))}
+          placeholder={String(CURRENT_YEAR)}
+          error={errors.vintage}
+        />
+        <Input
+          label="Región"
+          value={values.region}
+          onChange={(e) => set('region', e.target.value)}
+        />
       </div>
 
       <div>
-        <Label htmlFor="grapeInput">Uvas (hasta {MAX_GRAPES})</Label>
-        <div className="flex gap-2">
+        <div className="flex items-end gap-2">
           <Input
-            id="grapeInput"
+            label={`Uvas (hasta ${MAX_GRAPES})`}
+            className="flex-1"
             list="grape-suggestions"
             value={grapeInput}
             onChange={(e) => setGrapeInput(e.target.value)}

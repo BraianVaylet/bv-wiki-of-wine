@@ -3,7 +3,7 @@ import { type FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../auth/useAuth';
 import { AuthShell } from '../components/AuthShell';
-import { Alert, Button, FieldError, Input, Label, Select } from '../components/ui';
+import { Alert, Button, Input, Select } from '../components/ui';
 import {
   type FieldErrors,
   fieldErrorsFromApi,
@@ -52,64 +52,41 @@ export function Register() {
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         {formError && <Alert variant="danger">{formError}</Alert>}
 
-        <div>
-          <Label htmlFor="alias">Alias</Label>
-          <Input
-            id="alias"
-            name="alias"
-            value={alias}
-            onChange={(e) => setAlias(e.target.value)}
-            autoComplete="username"
-            autoCapitalize="none"
-            invalid={Boolean(errors.alias)}
-            aria-describedby={errors.alias ? 'alias-error' : undefined}
-          />
-          <FieldError id="alias-error">{errors.alias}</FieldError>
-        </div>
+        <Input
+          label="Alias"
+          name="alias"
+          value={alias}
+          onChange={(e) => setAlias(e.target.value)}
+          autoComplete="username"
+          autoCapitalize="none"
+          error={errors.alias}
+        />
 
-        <div>
-          <Label htmlFor="password">Contraseña</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            invalid={Boolean(errors.password)}
-            aria-describedby={errors.password ? 'password-error' : undefined}
-          />
-          <FieldError id="password-error">{errors.password}</FieldError>
-        </div>
+        <Input
+          label="Contraseña"
+          name="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="new-password"
+          error={errors.password}
+        />
 
-        <div>
-          <Label htmlFor="securityQuestionId">Pregunta de seguridad</Label>
-          <Select
-            id="securityQuestionId"
-            value={securityQuestionId}
-            onChange={(e) => setSecurityQuestionId(Number(e.target.value))}
-          >
-            {SECURITY_QUESTIONS.map((q) => (
-              <option key={q.id} value={q.id}>
-                {q.text}
-              </option>
-            ))}
-          </Select>
-        </div>
+        <Select
+          label="Pregunta de seguridad"
+          value={String(securityQuestionId)}
+          onValueChange={(v) => setSecurityQuestionId(Number(v))}
+          options={SECURITY_QUESTIONS.map((q) => ({ value: String(q.id), label: q.text }))}
+        />
 
-        <div>
-          <Label htmlFor="securityAnswer">Respuesta</Label>
-          <Input
-            id="securityAnswer"
-            name="securityAnswer"
-            value={securityAnswer}
-            onChange={(e) => setSecurityAnswer(e.target.value)}
-            autoComplete="off"
-            invalid={Boolean(errors.securityAnswer)}
-            aria-describedby={errors.securityAnswer ? 'answer-error' : undefined}
-          />
-          <FieldError id="answer-error">{errors.securityAnswer}</FieldError>
-        </div>
+        <Input
+          label="Respuesta"
+          name="securityAnswer"
+          value={securityAnswer}
+          onChange={(e) => setSecurityAnswer(e.target.value)}
+          autoComplete="off"
+          error={errors.securityAnswer}
+        />
 
         <Button type="submit" size="lg" loading={register.isPending}>
           Crear cuenta

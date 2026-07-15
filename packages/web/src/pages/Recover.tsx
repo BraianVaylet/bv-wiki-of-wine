@@ -2,7 +2,7 @@ import { aliasSchema, recoverySchema } from '@bv/shared';
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthShell } from '../components/AuthShell';
-import { Alert, Button, FieldError, Input, Label } from '../components/ui';
+import { Alert, Button, Input } from '../components/ui';
 import { ApiError, api } from '../lib/apiClient';
 import {
   type FieldErrors,
@@ -92,17 +92,13 @@ export function Recover() {
       {step === 'alias' ? (
         <form onSubmit={onSubmitAlias} noValidate className="flex flex-col gap-4">
           {formError && <Alert variant="danger">{formError}</Alert>}
-          <div>
-            <Label htmlFor="alias">Tu alias</Label>
-            <Input
-              id="alias"
-              value={alias}
-              onChange={(e) => setAlias(e.target.value)}
-              autoCapitalize="none"
-              invalid={Boolean(errors.alias)}
-            />
-            <FieldError>{errors.alias}</FieldError>
-          </div>
+          <Input
+            label="Tu alias"
+            value={alias}
+            onChange={(e) => setAlias(e.target.value)}
+            autoCapitalize="none"
+            error={errors.alias}
+          />
           <Button type="submit" size="lg" loading={loading}>
             Continuar
           </Button>
@@ -111,29 +107,21 @@ export function Recover() {
         <form onSubmit={onSubmitReset} noValidate className="flex flex-col gap-4">
           {formError && <Alert variant="danger">{formError}</Alert>}
           <p className="text-fg text-sm">{question}</p>
-          <div>
-            <Label htmlFor="answer">Respuesta</Label>
-            <Input
-              id="answer"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              autoComplete="off"
-              invalid={Boolean(errors.answer)}
-            />
-            <FieldError>{errors.answer}</FieldError>
-          </div>
-          <div>
-            <Label htmlFor="newPassword">Contraseña nueva</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              autoComplete="new-password"
-              invalid={Boolean(errors.newPassword)}
-            />
-            <FieldError>{errors.newPassword}</FieldError>
-          </div>
+          <Input
+            label="Respuesta"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            autoComplete="off"
+            error={errors.answer}
+          />
+          <Input
+            label="Contraseña nueva"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            error={errors.newPassword}
+          />
           <Button type="submit" size="lg" loading={loading}>
             Cambiar contraseña
           </Button>
