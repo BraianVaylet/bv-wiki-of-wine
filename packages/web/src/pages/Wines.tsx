@@ -42,7 +42,8 @@ export function Wines() {
             aria-label="Buscar vino o bodega"
             autoComplete="off"
             enterKeyHint="search"
-            className="medano-field__input pl-10"
+            className="medano-field__input w-full"
+            style={{ paddingLeft: '2.5rem' }}
           />
         </div>
 

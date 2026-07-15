@@ -17,7 +17,7 @@ export function WineCard({ wine }: { wine: WineListItem }) {
   return (
     <Link
       to={`/wines/${wine.id}`}
-      className="flex gap-3 rounded-xl border border-border bg-surface p-3 transition-colors hover:bg-surface-2"
+      className="medano-card flex gap-3 bg-surface p-3 transition-colors hover:bg-surface-2"
     >
       <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface-2">
         {wine.photoUrl ? (

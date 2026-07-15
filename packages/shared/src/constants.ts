@@ -42,7 +42,7 @@ export const REVIEW_AXIS_LABELS: Record<ReviewAxis, string> = {
   taste: 'Gusto',
   aroma: 'Aroma',
   body: 'Cuerpo',
-  valueForMoney: 'Precio/calidad',
+  valueForMoney: 'Precio',
 };
 
 export const ERROR_CODES = {

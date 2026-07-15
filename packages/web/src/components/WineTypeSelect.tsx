@@ -23,7 +23,7 @@ interface WineTypeSelectProps {
 export function WineTypeSelect({ value, onChange, includeAll, onClear }: WineTypeSelectProps) {
   return (
     // biome-ignore lint/a11y/useSemanticElements: role=group en un contenedor scrolleable de botones.
-    <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Tipo de vino">
+    <div className="flex gap-2 overflow-x-auto pb-3" role="group" aria-label="Tipo de vino">
       {includeAll && (
         <button
           type="button"
