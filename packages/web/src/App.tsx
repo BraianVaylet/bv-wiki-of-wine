@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { PublicOnlyRoute } from './auth/PublicOnlyRoute';
+import { UpdatePrompt } from './components/UpdatePrompt';
 import { PageLoader } from './components/ui';
 import { Login } from './pages/Login';
 import { Wines } from './pages/Wines';
@@ -18,21 +19,24 @@ const MyReviews = lazy(() => import('./pages/MyReviews').then((m) => ({ default:
 
 export function App() {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route element={<PublicOnlyRoute />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/recover" element={<Recover />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Wines />} />
-          <Route path="/wines/new" element={<NewWine />} />
-          <Route path="/wines/:id" element={<WineDetail />} />
-          <Route path="/wines/:id/edit" element={<EditWine />} />
-          <Route path="/me/reviews" element={<MyReviews />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <>
+      <UpdatePrompt />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/recover" element={<Recover />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Wines />} />
+            <Route path="/wines/new" element={<NewWine />} />
+            <Route path="/wines/:id" element={<WineDetail />} />
+            <Route path="/wines/:id/edit" element={<EditWine />} />
+            <Route path="/me/reviews" element={<MyReviews />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </>
   );
 }
