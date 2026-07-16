@@ -80,14 +80,14 @@ importers:
         specifier: workspace:*
         version: link:../shared
       '@medano-ui/fonts':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@medano-ui/react':
-        specifier: ^1.0.2
-        version: 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^1.0.3
+        version: 1.0.3(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@medano-ui/tokens':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@tanstack/react-query':
         specifier: ^5.62.7
         version: 5.101.2(react@18.3.1)
@@ -1393,17 +1393,17 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@medano-ui/fonts@1.0.2':
-    resolution: {integrity: sha512-9tu3F7w9PL3NddBzp5qon7tv17Eekyld6wk28UrcBHXFwqn2L4HoTa+PPhNJLPA9PsaUrGZb0j20/u6pPQ4boQ==}
+  '@medano-ui/fonts@1.0.3':
+    resolution: {integrity: sha512-+DVEMY80cNt5Z0pJ0weVXwVHKlGZ99XH8/Tf0ZEeJWS4dE1O8v+ObsWn7k/HW9SsD8u1wimUDAguot2J9mFLvQ==}
 
-  '@medano-ui/react@1.0.2':
-    resolution: {integrity: sha512-W3S6xVYWy7S1+FumAOkkXYSNI+oIA2kIlwnyzkbxoUE8Ny0utTcdANe4AiyISmmSNBhG0LbAImw7LsVcqaMbsw==}
+  '@medano-ui/react@1.0.3':
+    resolution: {integrity: sha512-9rGQgkY0twOxYcBSYYgqUdZqjbmwJQe+LmMm7pcLv70axbwSx+BhJP1oYmkdD4gupK+OBeZ45uwa7pCAwQa5Rw==}
     peerDependencies:
       react: '>=18.3'
       react-dom: '>=18.3'
 
-  '@medano-ui/tokens@1.0.2':
-    resolution: {integrity: sha512-uawtWDXCCil+TsW4dK1mwhx35gSTKqyFx4W+ggT7M8pIq3EOrFtOUhvBZhf4bCW/s1FN1PzQOeeoUrGG2F3qbQ==}
+  '@medano-ui/tokens@1.0.3':
+    resolution: {integrity: sha512-/7zie334MbGzy0KJ6PZOvrQDhpS3YowDMH2ZuRwsCufuNra2dNrfX4RBJb7/Au5gzfDDUd3DVRsxngwDHA3GKQ==}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -4691,9 +4691,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@medano-ui/fonts@1.0.2': {}
+  '@medano-ui/fonts@1.0.3': {}
 
-  '@medano-ui/react@1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@medano-ui/react@1.0.3(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@base-ui/react': 1.6.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
@@ -4703,7 +4703,7 @@ snapshots:
       - '@types/react'
       - date-fns
 
-  '@medano-ui/tokens@1.0.2': {}
+  '@medano-ui/tokens@1.0.3': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
