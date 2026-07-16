@@ -11,7 +11,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt': la nueva versión no se aplica sola; la app avisa y el usuario
+      // actualiza con un toque (ver components/UpdatePrompt.tsx). Con
+      // 'autoUpdate' la pestaña abierta seguía con el JS viejo hasta un
+      // refresh manual, y un formulario a medio llenar podía perderse.
+      registerType: 'prompt',
+      injectRegister: 'auto',
+      // El SW no se activa en dev ni en los tests (vitest usa este config).
+      devOptions: { enabled: false },
       includeAssets: ['favicon.svg', 'icon.svg'],
       manifest: {
         name: 'Wiki of Wine',
