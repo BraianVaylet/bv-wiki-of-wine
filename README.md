@@ -81,7 +81,8 @@ de admin.** Registralo antes de compartir la URL.
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | `biome check .` |
 | `pnpm db:seed` / `db:reset` | Semillas / recrear la DB (bloqueado en producción) |
-| `pnpm db:backup` | Backup consistente del `.db` + `uploads/` |
+| `pnpm db:backup` | Backup consistente del `.db` + `uploads/` + manifiesto con sha256 |
+| `pnpm db:restore` | Verifica el último backup. Con `<stamp> --yes`, lo restaura |
 
 ## Estado
 

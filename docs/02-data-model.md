@@ -320,11 +320,13 @@ antes de hacer nada.
 ## 10. Backups
 
 El archivo `.db` vive en el volumen de Railway. Copiarlo con `cp` mientras la app
-escribe **corrompe el backup** (WAL a medio aplicar). Usar la API de backup:
+escribe **corrompe el backup** (WAL a medio aplicar). `src/db/backup.ts` usa la API
+de backup online de SQLite, consistente aunque haya escrituras en curso, y archiva
+`uploads/` en el mismo movimiento:
 
-```ts
-// scripts/backup.ts — consistente aunque haya escrituras en curso
-await db.backup(`/data/backups/wow-${Date.now()}.db`);
+```bash
+pnpm db:backup     # .db + uploads.tar.gz + manifest con sha256
+pnpm db:restore    # verifica el último sin tocar nada
 ```
 
 Ver [08-hosting](08-hosting.md) §5.

@@ -18,7 +18,9 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "db:seed": "pnpm --filter @bv/api db:seed",
-    "db:reset": "pnpm --filter @bv/api db:reset"
+    "db:reset": "pnpm --filter @bv/api db:reset",
+    "db:backup": "pnpm --filter @bv/api db:backup",
+    "db:restore": "pnpm --filter @bv/api db:restore"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
