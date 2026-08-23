@@ -39,6 +39,9 @@ const envSchema = z
     // Ver docs/08-hosting.md §5.
     BACKUP_DIR: z.string().default('./data/backups'),
     BACKUP_RETENTION_DAYS: num(30),
+    // Cada cuántas horas corre el backup automático dentro del proceso. 0 = apagado.
+    // No es un cron aparte porque Railway monta cada volumen en un solo servicio.
+    BACKUP_SCHEDULE_HOURS: num(24),
     // Bucket S3-compatible (B2 / R2 / S3) donde se sube el set. Vacío = solo local.
     // Es lo único que protege contra perder el volumen entero.
     BACKUP_S3_ENDPOINT: z.string().default(''),

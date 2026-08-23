@@ -58,6 +58,7 @@ dos instancias haría falta Redis. Otra razón para quedarse en una.
    UPLOAD_DIR=/data/uploads
    BACKUP_DIR=/data/backups
    BACKUP_RETENTION_DAYS=30
+   BACKUP_SCHEDULE_HOURS=24
    SESSION_SECRET=<openssl rand -hex 32>
    COOKIE_SECURE=true
    WEB_DIST=public
@@ -222,18 +223,34 @@ directo:
 railway run --service <servicio> tar -cz -C /data backups > backups.tar.gz
 ```
 
-### 5.3 · El cron
+### 5.3 · El schedule vive dentro del proceso
 
-En Railway, un servicio de tipo Cron sobre la misma imagen, con el mismo volumen
-montado y las mismas variables:
+> **Railway monta cada volumen en un solo servicio.** No hay forma de que un
+> servicio de Cron aparte lea `/data`: vería un directorio vacío. El proceso que
+> sirve la app es el único que tiene la base y las fotos.
 
-```bash
-pnpm db:backup
-```
+Por eso el backup periódico corre **dentro de la API**
+([`schedule.ts`](../packages/api/src/db/schedule.ts)), controlado por
+`BACKUP_SCHEDULE_HOURS` (default 24, `0` apaga). Es seguro: `db.backup()` tolera
+escrituras concurrentes, no hay que frenar nada.
 
-Si la subida falla, el comando sale con código ≠ 0 y el cron lo marca como fallido
-— **el backup local ya generado no se borra**. Un backup que creés off-site y no lo
-está es peor que no tenerlo.
+Solo arranca con `NODE_ENV=production` — en dev el "volumen" es una carpeta local
+y lo único que lograría es un backup por cada `pnpm dev` que quede abierto.
+
+Tres propiedades que importan:
+
+- **Nunca tira.** Un backup fallido no puede voltear el server que está sirviendo
+  la app. Loguea y espera el próximo ciclo.
+- **No se solapa.** Si una corrida tarda más que el intervalo, la siguiente se
+  saltea en vez de pisar la anterior.
+- **No hace backup de una base vacía.** Si la base no tiene usuarios, aborta y
+  grita. Es la guarda contra el escenario real: el volumen se desmonta, la app
+  arranca con una base en blanco, y el backup automático sube ese vacío hasta
+  empujar los backups buenos fuera de la retención — perder los datos dos veces,
+  la segunda para siempre.
+
+Para una corrida manual (con `railway ssh` o en local): `pnpm db:backup`. Si la
+subida falla sale con código ≠ 0, y **el backup local ya generado no se borra**.
 
 > ⚠️ La retención guarda 30 sets completos, y cada uno incluye **todas** las fotos.
 > Hoy son megabytes. Cuando el catálogo crezca, la salida es subir cada foto una
