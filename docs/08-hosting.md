@@ -56,6 +56,8 @@ dos instancias haría falta Redis. Otra razón para quedarse en una.
    PORT=                     # Railway lo inyecta; el server DEBE leer process.env.PORT
    DATABASE_PATH=/data/wow.db
    UPLOAD_DIR=/data/uploads
+   BACKUP_DIR=/data/backups
+   BACKUP_RETENTION_DAYS=30
    SESSION_SECRET=<openssl rand -hex 32>
    COOKIE_SECURE=true
    WEB_DIST=public
@@ -132,24 +134,120 @@ deploy nuevo sirve un HTML viejo apuntando a bundles que ya no existen.
 ## 5. Backups (no es opcional)
 
 `cp /data/wow.db backup.db` mientras la app escribe **produce un backup corrupto**:
-el WAL queda a medio aplicar.
-
-```ts
-// packages/api/src/db/backup.ts — usa la API de backup online de SQLite
-await db.backup(join(BACKUP_DIR, `wow-${new Date().toISOString()}.db`));
-```
-
-`better-sqlite3` expone `db.backup()`, que es consistente aunque haya escrituras
-en curso.
+el WAL queda a medio aplicar. Por eso
+[`src/db/backup.ts`](../packages/api/src/db/backup.ts) usa `db.backup()`, la API de
+backup online de SQLite que `better-sqlite3` expone: consistente aunque haya
+escrituras en curso.
 
 **Las fotos también.** El `.db` sin `/data/uploads` es una wiki de vinos sin
-etiquetas. El backup es de los dos, juntos.
+etiquetas. El backup es de los dos, juntos — si el `tar.gz` falla, el script borra
+también el `.db` recién hecho antes de salir con error.
 
-Plan mínimo: un script `pnpm db:backup` que genere el `.db` + un `tar.gz` de
-`uploads/`, corrido a mano antes de cada deploy grande. Plan real: un cron que lo
-suba a un bucket (Backblaze B2 / R2, centavos al mes) y borre lo de más de 30 días.
+### 5.1 · Los comandos
 
-**Un backup que nunca se restauró no es un backup.** Probá la restauración una vez.
+```bash
+pnpm db:backup                  # crea el set y aplica retención
+pnpm db:restore                 # VERIFICA el último (no toca nada)
+pnpm db:restore --list          # lista los sets disponibles
+pnpm db:restore <stamp> --yes   # restaura de verdad, con la app detenida
+```
+
+Cada backup son tres archivos con el mismo *stamp*:
+
+| Archivo | Qué es |
+|---|---|
+| `wow-<stamp>.db` | la base, ya checkpointeada (sin sidecars `-wal`/`-shm`) |
+| `wow-<stamp>.uploads.tar.gz` | `uploads/` completo |
+| `wow-<stamp>.manifest.json` | sha256 + bytes de los dos, y los conteos de filas |
+
+El manifiesto es lo que hace verificable el backup: `pnpm db:restore` recalcula los
+sha256 y falla ruidosamente si algo no coincide, **antes** de escribir nada. Los
+conteos (`4 vinos · 6 reseñas · 5 usuarios`) te dicen de un vistazo si restauraste
+lo que creías.
+
+Variables: `BACKUP_DIR` (default `./data/backups`, en Railway `/data/backups`) y
+`BACKUP_RETENTION_DAYS` (default 30). La retención **nunca borra el set más
+reciente**, por viejo que sea.
+
+Al restaurar, lo que había se mueve a `<archivo>.pre-restore-<stamp>` en vez de
+pisarse. Si la restauración sale mal, los datos previos siguen ahí. Los sidecars
+`-wal`/`-shm` viejos se mueven también: aplicar un WAL viejo sobre una base nueva
+la corrompe, y es un error silencioso.
+
+### 5.2 · Off-site: el bucket
+
+> ⚠️ **`BACKUP_DIR` vive en el mismo volumen que la base.** Te salva de un borrado
+> accidental o de un bug. **No te salva de perder el volumen** — que es exactamente
+> lo que pasó una vez. El backup solo cuenta cuando está fuera de Railway.
+
+Por eso `pnpm db:backup`, además de escribir local, sube los tres archivos a un
+bucket S3-compatible si están las `BACKUP_S3_*`:
+
+```
+BACKUP_S3_ENDPOINT=s3.us-west-004.backblazeb2.com
+BACKUP_S3_REGION=us-west-004
+BACKUP_S3_BUCKET=bv-wow-backups
+BACKUP_S3_ACCESS_KEY_ID=<keyID>
+BACKUP_S3_SECRET_ACCESS_KEY=<applicationKey>
+BACKUP_S3_PREFIX=wow
+```
+
+**Todas o ninguna**: si falta una, la app no arranca. Media configuración dejaría
+`db:backup` subiendo a ningún lado sin avisar, que es el peor resultado posible.
+Sin ninguna, el backup sigue funcionando local y lo dice en la salida.
+
+La firma es [SigV4 a mano](../packages/api/src/db/remote.ts) — el SDK de AWS son
+decenas de MB para un único `PUT`. Está testeada contra el vector oficial de AWS,
+así que la firma es correcta contra una referencia externa y no contra sí misma.
+
+**Elegimos B2** sobre R2 por tres razones: no pide tarjeta para el free tier de
+10 GB, las llamadas API son gratis sin contar operaciones, y tiene Object Lock. El
+`$0 egress` de R2 —su ventaja real— no aplica a backups, que se suben seguido y se
+bajan casi nunca.
+
+**Reglas del bucket, no del código:**
+
+- La Application Key va **acotada al bucket**, nunca la master (que además no
+  funciona con la API S3-compatible).
+- La retención remota se maneja con **Lifecycle Rules** del bucket. El uploader
+  solo hace `PUT`: si el contenedor se compromete, el atacante no puede vaciar los
+  backups.
+- **Object Lock** en el bucket es lo que cierra el círculo: objetos inmutables que
+  no se borran ni con credenciales válidas.
+
+Para bajarlos, la consola de B2 o cualquier cliente S3. También sirve el volumen
+directo:
+
+```bash
+railway run --service <servicio> tar -cz -C /data backups > backups.tar.gz
+```
+
+### 5.3 · El cron
+
+En Railway, un servicio de tipo Cron sobre la misma imagen, con el mismo volumen
+montado y las mismas variables:
+
+```bash
+pnpm db:backup
+```
+
+Si la subida falla, el comando sale con código ≠ 0 y el cron lo marca como fallido
+— **el backup local ya generado no se borra**. Un backup que creés off-site y no lo
+está es peor que no tenerlo.
+
+> ⚠️ La retención guarda 30 sets completos, y cada uno incluye **todas** las fotos.
+> Hoy son megabytes. Cuando el catálogo crezca, la salida es subir cada foto una
+> sola vez (el nombre `uuid.webp` ya es su identidad) y guardar solo los `.db`
+> históricos. No lo hagas hoy: es optimización sin medición.
+
+### 5.4 · Probalo
+
+**Un backup que nunca se restauró no es un backup.** El camino de cero riesgo es
+`pnpm db:restore` sin `--yes`: verifica los sha256 y no escribe nada. Hacelo una
+vez por mes junto con el chequeo del tamaño del volumen (§7).
+
+La restauración completa se prueba en local: copiá los tres archivos a tu
+`./data/backups`, corré `pnpm db:restore <stamp> --yes` y abrí la app.
 
 ---
 

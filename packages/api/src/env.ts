@@ -34,6 +34,19 @@ const envSchema = z
     PORT: num(3100),
     DATABASE_PATH: z.string().default('./data/dev.db'),
     UPLOAD_DIR: z.string().default('./data/uploads'),
+    // Backups locales. Ojo: por defecto viven en el mismo disco que la base, así
+    // que protegen contra un borrado accidental, NO contra perder el volumen.
+    // Ver docs/08-hosting.md §5.
+    BACKUP_DIR: z.string().default('./data/backups'),
+    BACKUP_RETENTION_DAYS: num(30),
+    // Bucket S3-compatible (B2 / R2 / S3) donde se sube el set. Vacío = solo local.
+    // Es lo único que protege contra perder el volumen entero.
+    BACKUP_S3_ENDPOINT: z.string().default(''),
+    BACKUP_S3_REGION: z.string().default(''),
+    BACKUP_S3_BUCKET: z.string().default(''),
+    BACKUP_S3_ACCESS_KEY_ID: z.string().default(''),
+    BACKUP_S3_SECRET_ACCESS_KEY: z.string().default(''),
+    BACKUP_S3_PREFIX: z.string().default('wow'),
 
     SESSION_SECRET: z.string().default(DEV_SECRET),
     SESSION_TTL_DAYS: num(30),
@@ -60,6 +73,26 @@ const envSchema = z
     LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   })
   .superRefine((cfg, ctx) => {
+    // Backup remoto: todo o nada. Media configuración deja `db:backup` subiendo a
+    // ningún lado sin avisar, que es el peor resultado posible acá.
+    const s3 = {
+      BACKUP_S3_ENDPOINT: cfg.BACKUP_S3_ENDPOINT,
+      BACKUP_S3_REGION: cfg.BACKUP_S3_REGION,
+      BACKUP_S3_BUCKET: cfg.BACKUP_S3_BUCKET,
+      BACKUP_S3_ACCESS_KEY_ID: cfg.BACKUP_S3_ACCESS_KEY_ID,
+      BACKUP_S3_SECRET_ACCESS_KEY: cfg.BACKUP_S3_SECRET_ACCESS_KEY,
+    };
+    const missing = Object.entries(s3).filter(([, v]) => !v);
+    if (missing.length > 0 && missing.length < Object.keys(s3).length) {
+      for (const [key] of missing) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [key],
+          message: 'Falta para el backup remoto. Completá todas las BACKUP_S3_* o ninguna.',
+        });
+      }
+    }
+
     if (cfg.NODE_ENV !== 'production') return;
     if (cfg.SESSION_SECRET === DEV_SECRET || cfg.SESSION_SECRET.length < MIN_SECRET_LENGTH) {
       ctx.addIssue({
