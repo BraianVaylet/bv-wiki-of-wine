@@ -14,7 +14,7 @@ interface AuthShellProps {
 /** Layout centrado para las pantallas de autenticación. */
 export function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
   return (
-    <main className="mx-auto flex min-h-full max-w-sm flex-col justify-center gap-5 px-5 py-10">
+    <main className="mx-auto flex min-h-full max-w-sm flex-col gap-5 px-5 py-10">
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Logo className="h-10 w-10 rounded-md" />
