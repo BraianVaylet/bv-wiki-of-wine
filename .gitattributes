@@ -1,0 +1,5 @@
+# Los scripts que corren DENTRO del contenedor tienen que tener finales de línea
+# LF. Si Windows los commitea con CRLF, el shebang queda como `/bin/sh\r` y el
+# contenedor muere con "bad interpreter" — un fallo de deploy que no explica nada.
+*.sh            text eol=lf
+Dockerfile      text eol=lf

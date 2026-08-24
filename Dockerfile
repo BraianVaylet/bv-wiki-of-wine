@@ -38,19 +38,29 @@ FROM base AS runner
 ENV NODE_ENV=production \
     PORT=8787
 
+# gosu para bajar de root a `node` en el entrypoint, una vez montado el volumen.
+RUN apt-get update && apt-get install -y --no-install-recommends gosu \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml ./
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Crear /data con los permisos correctos para el usuario node.
-# Railway monta el volumen en /data, pero si el directorio no existe en la imagen
-# y el proceso corre como no-root, el mkdirSync de la app fallará con EACCES.
-RUN mkdir -p /data && chown -R node:node /app /data
-USER node
+# OJO: este chown de /data sirve solo cuando NO hay volumen. El montaje pasa
+# después del build y pisa el directorio junto con su ownership, así que el
+# permiso real lo arregla el entrypoint con el volumen ya montado.
+RUN mkdir -p /data \
+    && chown -R node:node /app /data \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Sin `USER node`: se arranca como root y el entrypoint baja a `node` con gosu.
+# La app igual nunca corre como root.
 WORKDIR /app/packages/api
 EXPOSE 8787
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8787)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["pnpm", "start"]
