@@ -216,11 +216,23 @@ bajan casi nunca.
 - **Object Lock** en el bucket es lo que cierra el círculo: objetos inmutables que
   no se borran ni con credenciales válidas.
 
-Para bajarlos, la consola de B2 o cualquier cliente S3. También sirve el volumen
-directo:
+Para bajarlos: la consola de B2, o cualquier cliente S3 (`rclone`, `s3cmd`).
+
+Para mirar el volumen directamente hay que entrar **al contenedor**:
 
 ```bash
-railway run --service <servicio> tar -cz -C /data backups > backups.tar.gz
+railway ssh
+```
+
+> ⚠️ **`railway run` NO sirve para esto.** Ejecuta el comando en tu máquina con las
+> variables de Railway inyectadas — un `ls /data` con `railway run` lista el `/data`
+> de tu compu (o falla), no el volumen. Para correr algo adentro del contenedor es
+> `railway ssh`.
+
+Ya dentro, las dos preguntas que importan:
+
+```bash
+ls -la /data && df -h /data
 ```
 
 ### 5.3 · El schedule vive dentro del proceso
