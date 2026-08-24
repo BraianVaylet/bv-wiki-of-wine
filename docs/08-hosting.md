@@ -249,6 +249,18 @@ escrituras concurrentes, no hay que frenar nada.
 Solo arranca con `NODE_ENV=production` — en dev el "volumen" es una carpeta local
 y lo único que lograría es un backup por cada `pnpm dev` que quede abierto.
 
+> ⚠️ **App Sleeping cambia todo.** Con `sleepApplication: true`, Railway apaga el
+> contenedor a los minutos de inactividad. Un `setInterval` de 24 o 48 h **no se
+> dispara nunca**: exigiría que el proceso viva esas horas seguidas.
+>
+> Por eso el disparador real es **el arranque**: cada vez que alguien entra a la
+> app y la despierta, el proceso pregunta cuánto hace del último backup
+> (`backupIsDue` contra `BACKUP_DIR`) y corre uno si corresponde. El `setInterval`
+> queda como red para el caso de que el servicio corra 24/7.
+>
+> La consecuencia a aceptar: si nadie entra durante días, no hay backup. Tampoco
+> hay datos nuevos que perder, así que el trade-off cierra.
+
 Tres propiedades que importan:
 
 - **Nunca tira.** Un backup fallido no puede voltear el server que está sirviendo

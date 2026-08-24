@@ -1,5 +1,6 @@
 import { env } from '../env';
-import { runBackup } from './backup';
+import { now } from '../lib/time';
+import { listBackups, runBackup } from './backup';
 import type { DB } from './connection';
 import { s3ConfigFromEnv, uploadBackupSet } from './remote';
 
@@ -16,10 +17,33 @@ import { s3ConfigFromEnv, uploadBackupSet } from './remote';
  */
 
 const HOUR_MS = 3_600_000;
-/** Primera corrida diferida: que no caiga en medio del arranque de un deploy. */
-const FIRST_RUN_DELAY_MS = 5 * 60_000;
+/**
+ * Chequeo al despertar, diferido lo justo para no competir con el arranque.
+ *
+ * Corto a propósito: con App Sleeping el contenedor se apaga a los pocos minutos
+ * de inactividad. Si esta espera es larga, el proceso muere antes de llegar.
+ */
+const WAKE_CHECK_DELAY_MS = 45_000;
 
 let running = false;
+
+/**
+ * ¿Pasaron `hours` desde el último backup?
+ *
+ * Es lo que hace que el backup funcione **con App Sleeping encendido**. Un
+ * `setInterval` de 24 o 48 h no sirve: exige que el proceso viva esas horas
+ * seguidas, y Railway apaga el contenedor a los minutos de inactividad — el
+ * timer no llega a dispararse nunca.
+ *
+ * En vez de eso, cada arranque (o sea, cada vez que alguien entra a la app y la
+ * despierta) pregunta cuánto hace del último backup. El despertar es el
+ * disparador. Si nadie entra durante días tampoco hay datos nuevos que perder.
+ */
+export function backupIsDue(dir: string, hours: number, nowMs = now()): boolean {
+  const [latest] = listBackups(dir);
+  if (!latest) return true;
+  return nowMs - latest.at >= hours * HOUR_MS;
+}
 
 /**
  * Una corrida. **Nunca tira**: un backup fallido no puede voltear el server que
@@ -58,6 +82,12 @@ export async function runScheduledBackup(db: DB): Promise<boolean> {
   }
 }
 
+/** Corre un backup solo si toca. El chequeo de antigüedad va contra `BACKUP_DIR`. */
+async function backupIfDue(db: DB, hours: number): Promise<void> {
+  if (!backupIsDue(env.BACKUP_DIR, hours)) return;
+  await runScheduledBackup(db);
+}
+
 /** Arranca el ciclo. Devuelve `null` si está apagado (`BACKUP_SCHEDULE_HOURS=0`). */
 export function startBackupSchedule(db: DB): NodeJS.Timeout | null {
   const hours = env.BACKUP_SCHEDULE_HOURS;
@@ -66,12 +96,19 @@ export function startBackupSchedule(db: DB): NodeJS.Timeout | null {
     return null;
   }
 
-  // `unref` en los dos: son tareas de fondo, no razones para mantener vivo el
+  // Dos disparadores, porque ninguno solo alcanza:
+  // - al despertar: el único que funciona con App Sleeping, donde el proceso no
+  //   vive lo suficiente para que un interval largo llegue a dispararse;
+  // - el interval: para cuando el servicio corre 24/7 y nunca se reinicia.
+  // Los dos pasan por `backupIsDue`, así que despertarse diez veces en una hora
+  // no genera diez backups.
+  //
+  // `unref` en ambos: son tareas de fondo, no razones para mantener vivo el
   // proceso cuando Railway manda SIGTERM.
-  setTimeout(() => void runScheduledBackup(db), FIRST_RUN_DELAY_MS).unref();
-  const timer = setInterval(() => void runScheduledBackup(db), hours * HOUR_MS);
+  setTimeout(() => void backupIfDue(db, hours), WAKE_CHECK_DELAY_MS).unref();
+  const timer = setInterval(() => void backupIfDue(db, hours), hours * HOUR_MS);
   timer.unref();
 
-  console.log(`🗓️  Backup automático cada ${hours} h (primera corrida en 5 min).`);
+  console.log(`🗓️  Backup automático cada ${hours} h (se revisa al despertar).`);
   return timer;
 }

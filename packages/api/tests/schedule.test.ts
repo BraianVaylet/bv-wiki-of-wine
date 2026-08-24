@@ -1,11 +1,11 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { listBackups } from '../src/db/backup';
+import { listBackups, toStamp } from '../src/db/backup';
 import type { DB } from '../src/db/connection';
-import { runScheduledBackup } from '../src/db/schedule';
+import { backupIsDue, runScheduledBackup } from '../src/db/schedule';
 import { env } from '../src/env';
 import { testDb } from './helpers';
 
@@ -35,6 +35,41 @@ function liveDb(): DB {
   `);
   return db;
 }
+
+describe('backupIsDue', () => {
+  const HOUR = 3_600_000;
+  const nowMs = Date.parse('2026-08-24T22:00:00.000Z');
+
+  /** Deja un set con fecha arbitraria, sin correr un backup real. */
+  function backupAt(hoursAgo: number): void {
+    mkdirSync(env.BACKUP_DIR, { recursive: true });
+    const stamp = toStamp(nowMs - hoursAgo * HOUR);
+    for (const suffix of ['.db', '.uploads.tar.gz', '.manifest.json']) {
+      writeFileSync(join(env.BACKUP_DIR, `wow-${stamp}${suffix}`), 'x');
+    }
+  }
+
+  it('toca si nunca hubo backup', () => {
+    expect(backupIsDue(env.BACKUP_DIR, 24, nowMs)).toBe(true);
+  });
+
+  it('toca si el último es más viejo que el intervalo', () => {
+    backupAt(30);
+    expect(backupIsDue(env.BACKUP_DIR, 24, nowMs)).toBe(true);
+  });
+
+  it('NO toca si el último es reciente', () => {
+    // Con App Sleeping el proceso arranca cada vez que alguien entra a la app.
+    // Sin esta guarda, diez visitas en una tarde serían diez backups.
+    backupAt(2);
+    expect(backupIsDue(env.BACKUP_DIR, 24, nowMs)).toBe(false);
+  });
+
+  it('toca justo al cumplirse el intervalo', () => {
+    backupAt(24);
+    expect(backupIsDue(env.BACKUP_DIR, 24, nowMs)).toBe(true);
+  });
+});
 
 describe('runScheduledBackup', () => {
   it('genera el backup cuando la base tiene datos', async () => {
