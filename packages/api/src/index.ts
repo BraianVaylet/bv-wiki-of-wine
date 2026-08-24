@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import { createApp } from './app';
 import { getDb } from './db/connection';
+import { startBackupSchedule } from './db/schedule';
 import { env, isProd } from './env';
 import { now } from './lib/time';
 import { sessionRepo } from './repositories/sessionRepo';
@@ -19,6 +20,12 @@ if (isProd) {
 const server = serve({ fetch: app.fetch, port: env.PORT }, (info) => {
   console.log(`🍷 Wiki of Wine API en http://localhost:${info.port} (${env.NODE_ENV})`);
 });
+
+// Solo en producción: en dev el volumen es una carpeta local y no hay nada que
+// proteger, pero sí habría un backup por cada `pnpm dev` que quede abierto.
+if (isProd) {
+  startBackupSchedule(db);
+}
 
 // Sin esto, un EADDRINUSE se emite como evento del server, nadie lo escucha y el
 // proceso queda vivo sin escuchar nada: arranque roto, cero output. Fallar fuerte.
